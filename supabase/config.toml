@@ -1,1 +1,4 @@
 project_id = "fsagkyqhcjouvbhsbxlb"
+
+[functions.detect-plant-disease]
+verify_jwt = false
