@@ -25,15 +25,13 @@ interface DetectionResultProps {
 
 const DetectionResult: React.FC<DetectionResultProps> = ({ result, onNewScan }) => {
   const { t, getText, language } = useLanguage();
-  const { speakDetectionResult, isSpeaking, stop, isSupported } = useTextToSpeech({
-    lang: language === 'ta' ? 'ta-IN' : 'en-US',
-  });
+  const { speakDetectionResult, isSpeaking, stop, isSupported } = useTextToSpeech();
 
   const handleSpeak = () => {
     if (isSpeaking) {
       stop();
     } else {
-      speakDetectionResult(result, language);
+      speakDetectionResult(result);
     }
   };
 
