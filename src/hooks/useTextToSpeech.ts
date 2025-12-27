@@ -1,105 +1,67 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 interface UseTTSOptions {
-  lang?: string;
   rate?: number;
   pitch?: number;
 }
 
 export const useTextToSpeech = (options: UseTTSOptions = {}) => {
-  const { lang = 'ta-IN', rate = 0.8, pitch = 1 } = options;
+  const { rate = 0.8, pitch = 1 } = options;
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
 
-  // Load voices when they become available
   useEffect(() => {
-    if (!('speechSynthesis' in window)) {
-      setIsSupported(false);
-      return;
-    }
+    const supported = 'speechSynthesis' in window;
+    setIsSupported(supported);
     
-    setIsSupported(true);
+    if (!supported) return;
     
     const loadVoices = () => {
-      const availableVoices = window.speechSynthesis.getVoices();
-      setVoices(availableVoices);
-      console.log('Available voices:', availableVoices.map(v => `${v.name} (${v.lang})`));
+      voicesRef.current = window.speechSynthesis.getVoices();
     };
 
     loadVoices();
-    
-    // Voices may load asynchronously
-    if (window.speechSynthesis.onvoiceschanged !== undefined) {
-      window.speechSynthesis.onvoiceschanged = loadVoices;
-    }
+    window.speechSynthesis.onvoiceschanged = loadVoices;
 
     return () => {
       window.speechSynthesis.cancel();
     };
   }, []);
 
-  const findBestVoice = useCallback((targetLang: string): SpeechSynthesisVoice | null => {
-    if (voices.length === 0) return null;
+  const findVoice = useCallback((lang: string): SpeechSynthesisVoice | null => {
+    const voices = voicesRef.current;
+    const langCode = lang.split('-')[0];
     
-    const langCode = targetLang.split('-')[0]; // 'ta' from 'ta-IN'
-    
-    // Priority 1: Exact match
-    let voice = voices.find(v => v.lang === targetLang);
-    if (voice) return voice;
-    
-    // Priority 2: Language code match
-    voice = voices.find(v => v.lang.startsWith(langCode));
-    if (voice) return voice;
-    
-    // Priority 3: For Tamil, try Hindi as fallback (Indic language)
-    if (langCode === 'ta') {
-      voice = voices.find(v => v.lang.startsWith('hi'));
-      if (voice) return voice;
-    }
-    
-    // Priority 4: For English, prefer US or UK
-    if (langCode === 'en') {
-      voice = voices.find(v => v.lang === 'en-US' || v.lang === 'en-GB');
-      if (voice) return voice;
-    }
-    
-    return null;
-  }, [voices]);
+    return voices.find(v => v.lang === lang) || 
+           voices.find(v => v.lang.startsWith(langCode)) || 
+           null;
+  }, []);
 
-  const speak = useCallback((text: string, speechLang?: string) => {
+  const stop = useCallback(() => {
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+  }, []);
+
+  const speak = useCallback((text: string, lang: string = 'en-US') => {
     if (!isSupported || !text) return;
 
     window.speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
-    const targetLang = speechLang || lang;
-    utterance.lang = targetLang;
+    utterance.lang = lang;
     utterance.rate = rate;
     utterance.pitch = pitch;
 
-    const voice = findBestVoice(targetLang);
-    if (voice) {
-      utterance.voice = voice;
-    }
+    const voice = findVoice(lang);
+    if (voice) utterance.voice = voice;
 
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = (e) => {
-      console.error('Speech error:', e);
-      setIsSpeaking(false);
-    };
+    utterance.onerror = () => setIsSpeaking(false);
 
-    utteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
-  }, [isSupported, lang, rate, pitch, findBestVoice]);
-
-  const stop = useCallback(() => {
-    if (!isSupported) return;
-    window.speechSynthesis.cancel();
-    setIsSpeaking(false);
-  }, [isSupported]);
+  }, [isSupported, rate, pitch, findVoice]);
 
   const speakDetectionResult = useCallback((result: {
     is_healthy: boolean;
@@ -114,91 +76,70 @@ export const useTextToSpeech = (options: UseTTSOptions = {}) => {
     remedy_traditional_ta?: string | null;
     remedy_traditional_en?: string | null;
     plant_type?: string;
-  }, language: 'ta' | 'en' = 'ta') => {
+  }) => {
     if (!isSupported) return;
 
-    // Build Tamil text
     let tamilText = '';
-    if (result.is_healthy) {
-      tamilText = `நல்ல செய்தி! உங்கள் ${result.plant_type || 'செடி'} முற்றிலும் ஆரோக்கியமாக உள்ளது. எந்த நோயும் கண்டறியப்படவில்லை.`;
-    } else {
-      tamilText = `கவனம்! ${result.disease_name_ta || 'நோய்'} கண்டறியப்பட்டது. `;
-      if (result.cause_ta) tamilText += `காரணம்: ${result.cause_ta}. `;
-      if (result.remedy_organic_ta) tamilText += `இயற்கை தீர்வு: ${result.remedy_organic_ta}. `;
-      if (result.remedy_traditional_ta) tamilText += `பாரம்பரிய வழிமுறை: ${result.remedy_traditional_ta}. `;
-      if (result.remedy_chemical_ta) tamilText += `இரசாயன சிகிச்சை: ${result.remedy_chemical_ta}. `;
-    }
-
-    // Build English text
     let englishText = '';
+
     if (result.is_healthy) {
-      englishText = `Good news! Your ${result.plant_type || 'plant'} is completely healthy. No disease has been detected.`;
+      tamilText = `நல்ல செய்தி! உங்கள் ${result.plant_type || 'செடி'} ஆரோக்கியமாக உள்ளது.`;
+      englishText = `Good news! Your ${result.plant_type || 'plant'} is healthy.`;
     } else {
-      englishText = `Attention! ${result.disease_name_en || 'A disease'} has been detected. `;
-      if (result.cause_en) englishText += `Cause: ${result.cause_en}. `;
-      if (result.remedy_organic_en) englishText += `Organic remedy: ${result.remedy_organic_en}. `;
-      if (result.remedy_traditional_en) englishText += `Traditional remedy: ${result.remedy_traditional_en}. `;
-      if (result.remedy_chemical_en) englishText += `Chemical treatment: ${result.remedy_chemical_en}. `;
+      tamilText = `${result.disease_name_ta || 'நோய்'} கண்டறியப்பட்டது. `;
+      if (result.cause_ta) tamilText += result.cause_ta + '. ';
+      if (result.remedy_organic_ta) tamilText += result.remedy_organic_ta + '. ';
+
+      englishText = `${result.disease_name_en || 'Disease'} detected. `;
+      if (result.cause_en) englishText += result.cause_en + '. ';
+      if (result.remedy_organic_en) englishText += result.remedy_organic_en + '. ';
     }
 
     window.speechSynthesis.cancel();
-    
-    const speechParts = [
+    setIsSpeaking(true);
+
+    const parts = [
       { text: tamilText, lang: 'ta-IN' },
       { text: englishText, lang: 'en-US' }
     ];
-    
-    let currentIndex = 0;
-    
-    const speakNext = () => {
-      if (currentIndex >= speechParts.length) {
+
+    let index = 0;
+
+    const speakPart = () => {
+      if (index >= parts.length) {
         setIsSpeaking(false);
         return;
       }
 
-      const { text, lang: speechLang } = speechParts[currentIndex];
+      const { text, lang } = parts[index];
       if (!text.trim()) {
-        currentIndex++;
-        speakNext();
+        index++;
+        speakPart();
         return;
       }
 
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = speechLang;
+      utterance.lang = lang;
       utterance.rate = rate;
       utterance.pitch = pitch;
 
-      const voice = findBestVoice(speechLang);
-      if (voice) {
-        utterance.voice = voice;
-        console.log(`Using voice: ${voice.name} for ${speechLang}`);
-      } else {
-        console.log(`No voice found for ${speechLang}, using default`);
-      }
+      const voice = findVoice(lang);
+      if (voice) utterance.voice = voice;
 
-      utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => {
-        currentIndex++;
-        // Small delay between languages
-        setTimeout(speakNext, 500);
+        index++;
+        setTimeout(speakPart, 300);
       };
-      utterance.onerror = (e) => {
-        console.error('Speech error:', e);
-        currentIndex++;
-        speakNext();
+      utterance.onerror = () => {
+        index++;
+        speakPart();
       };
 
       window.speechSynthesis.speak(utterance);
     };
 
-    speakNext();
-  }, [isSupported, rate, pitch, findBestVoice]);
+    speakPart();
+  }, [isSupported, rate, pitch, findVoice]);
 
-  return {
-    speak,
-    stop,
-    speakDetectionResult,
-    isSpeaking,
-    isSupported,
-  };
+  return { speak, stop, speakDetectionResult, isSpeaking, isSupported };
 };
