@@ -54,6 +54,58 @@ export const useTextToSpeech = (options: UseTTSOptions = {}) => {
     setIsSpeaking(false);
   }, [isSupported]);
 
+  const speakSequentially = useCallback((texts: { text: string; lang: string }[]) => {
+    if (!isSupported || texts.length === 0) return;
+
+    window.speechSynthesis.cancel();
+    
+    let currentIndex = 0;
+    
+    const speakNext = () => {
+      if (currentIndex >= texts.length) {
+        setIsSpeaking(false);
+        return;
+      }
+
+      const { text, lang } = texts[currentIndex];
+      if (!text.trim()) {
+        currentIndex++;
+        speakNext();
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;
+      utterance.rate = rate;
+      utterance.pitch = pitch;
+
+      // Find matching voice for the language
+      const voices = window.speechSynthesis.getVoices();
+      const matchingVoice = voices.find(voice => 
+        voice.lang.startsWith(lang.split('-')[0]) || 
+        voice.name.toLowerCase().includes(lang === 'ta-IN' ? 'tamil' : 'english')
+      );
+      
+      if (matchingVoice) {
+        utterance.voice = matchingVoice;
+      }
+
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => {
+        currentIndex++;
+        speakNext();
+      };
+      utterance.onerror = () => {
+        currentIndex++;
+        speakNext();
+      };
+
+      window.speechSynthesis.speak(utterance);
+    };
+
+    speakNext();
+  }, [isSupported, rate, pitch]);
+
   const speakDetectionResult = useCallback((result: {
     is_healthy: boolean;
     disease_name_ta?: string | null;
@@ -70,67 +122,68 @@ export const useTextToSpeech = (options: UseTTSOptions = {}) => {
   }, language: 'ta' | 'en' = 'ta') => {
     if (!isSupported) return;
 
-    let fullText = '';
+    const speechParts: { text: string; lang: string }[] = [];
 
-    // Tamil section first
+    // Tamil section
+    let tamilText = '';
     if (result.is_healthy) {
-      fullText = `தமிழில்: ... நல்ல செய்தி! ... உங்கள் ${result.plant_type || 'செடி'} முற்றிலும் ஆரோக்கியமாக உள்ளது. ... எந்த நோயும் கண்டறியப்படவில்லை. ... உங்கள் செடி நன்றாக வளர்கிறது. ... `;
+      tamilText = `நல்ல செய்தி! உங்கள் ${result.plant_type || 'செடி'} முற்றிலும் ஆரோக்கியமாக உள்ளது. எந்த நோயும் கண்டறியப்படவில்லை. உங்கள் செடி நன்றாக வளர்கிறது.`;
     } else {
-      fullText = `தமிழில்: ... கவனம்! ... ${result.disease_name_ta || 'நோய்'} கண்டறியப்பட்டது. ... `;
+      tamilText = `கவனம்! ${result.disease_name_ta || 'நோய்'} கண்டறியப்பட்டது. `;
       
       if (result.cause_ta) {
-        fullText += `நோய்க்கான காரணம்: ... ${result.cause_ta}. ... `;
+        tamilText += `நோய்க்கான காரணம்: ${result.cause_ta}. `;
       }
       
-      fullText += `இப்போது தீர்வுகளை பார்ப்போம். ... `;
+      tamilText += `இப்போது தீர்வுகளை பார்ப்போம். `;
       
       if (result.remedy_organic_ta) {
-        fullText += `இயற்கை தீர்வு: ... ${result.remedy_organic_ta}. ... `;
+        tamilText += `இயற்கை தீர்வு: ${result.remedy_organic_ta}. `;
       }
       
       if (result.remedy_traditional_ta) {
-        fullText += `பாரம்பரிய வழிமுறை: ... ${result.remedy_traditional_ta}. ... `;
+        tamilText += `பாரம்பரிய வழிமுறை: ${result.remedy_traditional_ta}. `;
       }
       
       if (result.remedy_chemical_ta) {
-        fullText += `இரசாயன சிகிச்சை: ... ${result.remedy_chemical_ta}. ... `;
+        tamilText += `இரசாயன சிகிச்சை: ${result.remedy_chemical_ta}. `;
       }
       
-      fullText += `இந்த தீர்வுகளை முறையாக பின்பற்றுங்கள். ... `;
+      tamilText += `இந்த தீர்வுகளை முறையாக பின்பற்றுங்கள்.`;
     }
+    speechParts.push({ text: tamilText, lang: 'ta-IN' });
 
     // English section
-    fullText += `... ... Now in English: ... `;
-    
+    let englishText = 'Now in English. ';
     if (result.is_healthy) {
-      fullText += `Good news! ... Your ${result.plant_type || 'plant'} is completely healthy. ... No disease has been detected. ... Your plant is growing well.`;
+      englishText += `Good news! Your ${result.plant_type || 'plant'} is completely healthy. No disease has been detected. Your plant is growing well.`;
     } else {
-      fullText += `Attention! ... ${result.disease_name_en || 'A disease'} has been detected. ... `;
+      englishText += `Attention! ${result.disease_name_en || 'A disease'} has been detected. `;
       
       if (result.cause_en) {
-        fullText += `The cause of this disease is: ... ${result.cause_en}. ... `;
+        englishText += `The cause of this disease is: ${result.cause_en}. `;
       }
       
-      fullText += `Now let's look at the remedies. ... `;
+      englishText += `Now let's look at the remedies. `;
       
       if (result.remedy_organic_en) {
-        fullText += `Organic remedy: ... ${result.remedy_organic_en}. ... `;
+        englishText += `Organic remedy: ${result.remedy_organic_en}. `;
       }
       
       if (result.remedy_traditional_en) {
-        fullText += `Traditional remedy: ... ${result.remedy_traditional_en}. ... `;
+        englishText += `Traditional remedy: ${result.remedy_traditional_en}. `;
       }
       
       if (result.remedy_chemical_en) {
-        fullText += `Chemical treatment: ... ${result.remedy_chemical_en}. ... `;
+        englishText += `Chemical treatment: ${result.remedy_chemical_en}. `;
       }
       
-      fullText += `Please follow these remedies properly.`;
+      englishText += `Please follow these remedies properly.`;
     }
+    speechParts.push({ text: englishText, lang: 'en-US' });
 
-    // Use multilingual voice setting
-    speak(fullText, 'en-US');
-  }, [isSupported, speak]);
+    speakSequentially(speechParts);
+  }, [isSupported, speakSequentially]);
 
   return {
     speak,
