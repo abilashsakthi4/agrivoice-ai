@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UseTTSOptions {
   lang?: string;
@@ -7,54 +8,97 @@ interface UseTTSOptions {
 }
 
 export const useTextToSpeech = (options: UseTTSOptions = {}) => {
-  // Slower rate (0.6) for clearer speech
-  const { lang = 'ta-IN', rate = 0.6, pitch = 1 } = options;
+  const { lang = 'ta', rate = 0.6, pitch = 1 } = options;
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isSupported, setIsSupported] = useState(false);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const [isSupported] = useState(true);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
+  // Cleanup on unmount
   useEffect(() => {
-    setIsSupported('speechSynthesis' in window);
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, []);
 
-  const speak = useCallback((text: string, speechLang?: string) => {
-    if (!isSupported || !text) return;
+  const speakWithEdgeFunction = useCallback(async (text: string, speechLang: string = 'ta') => {
+    try {
+      abortControllerRef.current = new AbortController();
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-to-speech`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ text, lang: speechLang }),
+          signal: abortControllerRef.current.signal,
+        }
+      );
 
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
+      if (!response.ok) {
+        throw new Error(`TTS request failed: ${response.status}`);
+      }
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = speechLang || lang;
-    utterance.rate = rate;
-    utterance.pitch = pitch;
-
-    // Try to find a voice matching the language
-    const voices = window.speechSynthesis.getVoices();
-    const targetLang = speechLang || lang;
-    const matchingVoice = voices.find(voice => 
-      voice.lang.includes(targetLang.split('-')[0]) || 
-      voice.name.toLowerCase().includes(targetLang === 'ta-IN' ? 'tamil' : 'english')
-    );
-    
-    if (matchingVoice) {
-      utterance.voice = matchingVoice;
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      return audioUrl;
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') {
+        return null;
+      }
+      console.error('Edge function TTS error:', error);
+      throw error;
     }
+  }, []);
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+  const speak = useCallback(async (text: string, speechLang?: string) => {
+    if (!text) return;
 
-    utteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
-  }, [isSupported, lang, rate, pitch]);
+    try {
+      setIsSpeaking(true);
+      const audioUrl = await speakWithEdgeFunction(text, speechLang || lang);
+      
+      if (audioUrl) {
+        audioRef.current = new Audio(audioUrl);
+        audioRef.current.onended = () => {
+          setIsSpeaking(false);
+          URL.revokeObjectURL(audioUrl);
+        };
+        audioRef.current.onerror = () => {
+          setIsSpeaking(false);
+          URL.revokeObjectURL(audioUrl);
+        };
+        await audioRef.current.play();
+      }
+    } catch (error) {
+      console.error('TTS error:', error);
+      setIsSpeaking(false);
+    }
+  }, [speakWithEdgeFunction, lang]);
 
   const stop = useCallback(() => {
-    if (!isSupported) return;
-    window.speechSynthesis.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
     setIsSpeaking(false);
-  }, [isSupported]);
+  }, []);
 
-  const speakDetectionResult = useCallback((result: {
+  const speakDetectionResult = useCallback(async (result: {
     is_healthy: boolean;
     disease_name_ta?: string | null;
     disease_name_en?: string | null;
@@ -68,8 +112,6 @@ export const useTextToSpeech = (options: UseTTSOptions = {}) => {
     remedy_traditional_en?: string | null;
     plant_type?: string;
   }, language: 'ta' | 'en' = 'ta') => {
-    if (!isSupported) return;
-
     // Build Tamil text
     let tamilText = '';
     if (result.is_healthy) {
@@ -85,11 +127,11 @@ export const useTextToSpeech = (options: UseTTSOptions = {}) => {
     }
 
     // Build English text
-    let englishText = 'Now in English. ';
+    let englishText = '';
     if (result.is_healthy) {
-      englishText += `Good news! Your ${result.plant_type || 'plant'} is completely healthy. No disease has been detected. Your plant is growing well.`;
+      englishText = `Good news! Your ${result.plant_type || 'plant'} is completely healthy. No disease has been detected. Your plant is growing well.`;
     } else {
-      englishText += `Attention! ${result.disease_name_en || 'A disease'} has been detected. `;
+      englishText = `Attention! ${result.disease_name_en || 'A disease'} has been detected. `;
       if (result.cause_en) englishText += `The cause of this disease is: ${result.cause_en}. `;
       englishText += `Now let's look at the remedies. `;
       if (result.remedy_organic_en) englishText += `Organic remedy: ${result.remedy_organic_en}. `;
@@ -98,58 +140,41 @@ export const useTextToSpeech = (options: UseTTSOptions = {}) => {
       englishText += `Please follow these remedies properly.`;
     }
 
-    window.speechSynthesis.cancel();
-    
     const speechParts = [
-      { text: tamilText, lang: 'ta-IN' },
-      { text: englishText, lang: 'en-US' }
+      { text: tamilText, lang: 'ta' },
+      { text: englishText, lang: 'en' }
     ];
+
+    setIsSpeaking(true);
     
-    let currentIndex = 0;
-    
-    const speakNext = () => {
-      if (currentIndex >= speechParts.length) {
-        setIsSpeaking(false);
-        return;
-      }
-
-      const { text, lang: speechLang } = speechParts[currentIndex];
-      if (!text.trim()) {
-        currentIndex++;
-        speakNext();
-        return;
-      }
-
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = speechLang;
-      utterance.rate = rate;
-      utterance.pitch = pitch;
-
-      const voices = window.speechSynthesis.getVoices();
-      const matchingVoice = voices.find(voice => 
-        voice.lang.startsWith(speechLang.split('-')[0]) || 
-        voice.name.toLowerCase().includes(speechLang === 'ta-IN' ? 'tamil' : 'english')
-      );
+    // Play each part sequentially
+    for (const part of speechParts) {
+      if (!part.text.trim()) continue;
       
-      if (matchingVoice) {
-        utterance.voice = matchingVoice;
+      try {
+        const audioUrl = await speakWithEdgeFunction(part.text, part.lang);
+        
+        if (audioUrl) {
+          await new Promise<void>((resolve, reject) => {
+            audioRef.current = new Audio(audioUrl);
+            audioRef.current.onended = () => {
+              URL.revokeObjectURL(audioUrl);
+              resolve();
+            };
+            audioRef.current.onerror = () => {
+              URL.revokeObjectURL(audioUrl);
+              reject(new Error('Audio playback failed'));
+            };
+            audioRef.current.play().catch(reject);
+          });
+        }
+      } catch (error) {
+        console.error('Error playing audio:', error);
       }
-
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => {
-        currentIndex++;
-        speakNext();
-      };
-      utterance.onerror = () => {
-        currentIndex++;
-        speakNext();
-      };
-
-      window.speechSynthesis.speak(utterance);
-    };
-
-    speakNext();
-  }, [isSupported, rate, pitch]);
+    }
+    
+    setIsSpeaking(false);
+  }, [speakWithEdgeFunction]);
 
   return {
     speak,
