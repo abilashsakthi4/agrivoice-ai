@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 interface UseTTSOptions {
   rate?: number;
@@ -6,64 +6,92 @@ interface UseTTSOptions {
 }
 
 export const useTextToSpeech = (options: UseTTSOptions = {}) => {
-  const { rate = 0.8, pitch = 1 } = options;
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isSupported, setIsSupported] = useState(false);
-  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+  const [isSupported] = useState(true); // ElevenLabs works on all devices
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  useEffect(() => {
-    const supported = 'speechSynthesis' in window;
-    setIsSupported(supported);
-    
-    if (!supported) return;
-    
-    const loadVoices = () => {
-      voicesRef.current = window.speechSynthesis.getVoices();
-    };
+  const speakWithElevenLabs = useCallback(async (text: string, lang: string = 'en') => {
+    if (!text?.trim()) return;
 
-    loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
+    try {
+      abortControllerRef.current = new AbortController();
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ text: text.trim(), lang }),
+          signal: abortControllerRef.current.signal,
+        }
+      );
 
-    return () => {
-      window.speechSynthesis.cancel();
-    };
-  }, []);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || `TTS request failed: ${response.status}`);
+      }
 
-  const findVoice = useCallback((lang: string): SpeechSynthesisVoice | null => {
-    const voices = voicesRef.current;
-    const langCode = lang.split('-')[0];
-    
-    return voices.find(v => v.lang === lang) || 
-           voices.find(v => v.lang.startsWith(langCode)) || 
-           null;
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      return new Promise<void>((resolve, reject) => {
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+        
+        audio.onended = () => {
+          URL.revokeObjectURL(audioUrl);
+          audioRef.current = null;
+          resolve();
+        };
+        
+        audio.onerror = () => {
+          URL.revokeObjectURL(audioUrl);
+          audioRef.current = null;
+          reject(new Error('Audio playback failed'));
+        };
+        
+        audio.play().catch(reject);
+      });
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') {
+        return;
+      }
+      console.error('ElevenLabs TTS error:', error);
+      throw error;
+    }
   }, []);
 
   const stop = useCallback(() => {
-    window.speechSynthesis.cancel();
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
     setIsSpeaking(false);
   }, []);
 
-  const speak = useCallback((text: string, lang: string = 'en-US') => {
-    if (!isSupported || !text) return;
+  const speak = useCallback(async (text: string, lang: string = 'en-US') => {
+    if (!text?.trim()) return;
+    
+    setIsSpeaking(true);
+    try {
+      await speakWithElevenLabs(text, lang);
+    } catch (error) {
+      console.error('Speech error:', error);
+    } finally {
+      setIsSpeaking(false);
+    }
+  }, [speakWithElevenLabs]);
 
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang;
-    utterance.rate = rate;
-    utterance.pitch = pitch;
-
-    const voice = findVoice(lang);
-    if (voice) utterance.voice = voice;
-
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-
-    window.speechSynthesis.speak(utterance);
-  }, [isSupported, rate, pitch, findVoice]);
-
-  const speakDetectionResult = useCallback((result: {
+  const speakDetectionResult = useCallback(async (result: {
     is_healthy: boolean;
     disease_name_ta?: string | null;
     disease_name_en?: string | null;
@@ -77,8 +105,6 @@ export const useTextToSpeech = (options: UseTTSOptions = {}) => {
     remedy_traditional_en?: string | null;
     plant_type?: string;
   }) => {
-    if (!isSupported) return;
-
     let tamilText = '';
     let englishText = '';
 
@@ -95,51 +121,27 @@ export const useTextToSpeech = (options: UseTTSOptions = {}) => {
       if (result.remedy_organic_en) englishText += result.remedy_organic_en + '. ';
     }
 
-    window.speechSynthesis.cancel();
     setIsSpeaking(true);
-
-    const parts = [
-      { text: tamilText, lang: 'ta-IN' },
-      { text: englishText, lang: 'en-US' }
-    ];
-
-    let index = 0;
-
-    const speakPart = () => {
-      if (index >= parts.length) {
-        setIsSpeaking(false);
-        return;
+    
+    try {
+      // Speak Tamil first
+      if (tamilText.trim()) {
+        await speakWithElevenLabs(tamilText, 'ta-IN');
       }
-
-      const { text, lang } = parts[index];
-      if (!text.trim()) {
-        index++;
-        speakPart();
-        return;
+      
+      // Small pause between languages
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Then speak English
+      if (englishText.trim()) {
+        await speakWithElevenLabs(englishText, 'en-US');
       }
-
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = lang;
-      utterance.rate = rate;
-      utterance.pitch = pitch;
-
-      const voice = findVoice(lang);
-      if (voice) utterance.voice = voice;
-
-      utterance.onend = () => {
-        index++;
-        setTimeout(speakPart, 300);
-      };
-      utterance.onerror = () => {
-        index++;
-        speakPart();
-      };
-
-      window.speechSynthesis.speak(utterance);
-    };
-
-    speakPart();
-  }, [isSupported, rate, pitch, findVoice]);
+    } catch (error) {
+      console.error('Speech error:', error);
+    } finally {
+      setIsSpeaking(false);
+    }
+  }, [speakWithElevenLabs]);
 
   return { speak, stop, speakDetectionResult, isSpeaking, isSupported };
 };
