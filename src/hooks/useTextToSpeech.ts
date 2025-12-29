@@ -5,14 +5,17 @@ interface UseTTSOptions {
   pitch?: number;
 }
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export const useTextToSpeech = (options: UseTTSOptions = {}) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isSupported] = useState(true); // ElevenLabs works on all devices
+  const [isSupported] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const isCancelledRef = useRef(false);
 
-  const speakWithElevenLabs = useCallback(async (text: string, lang: string = 'en') => {
-    if (!text?.trim()) return;
+  const speakWithElevenLabs = useCallback(async (text: string, lang: string = 'en', retries = 2): Promise<void> => {
+    if (!text?.trim() || isCancelledRef.current) return;
 
     try {
       abortControllerRef.current = new AbortController();
@@ -32,14 +35,29 @@ export const useTextToSpeech = (options: UseTTSOptions = {}) => {
       );
 
       if (!response.ok) {
+        // Handle rate limiting with retry
+        if (response.status === 429 && retries > 0) {
+          console.log(`Rate limited, retrying in 2s... (${retries} retries left)`);
+          await delay(2000);
+          return speakWithElevenLabs(text, lang, retries - 1);
+        }
+        
         const error = await response.json();
         throw new Error(error.error || `TTS request failed: ${response.status}`);
       }
+
+      if (isCancelledRef.current) return;
 
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
       
       return new Promise<void>((resolve, reject) => {
+        if (isCancelledRef.current) {
+          URL.revokeObjectURL(audioUrl);
+          resolve();
+          return;
+        }
+        
         const audio = new Audio(audioUrl);
         audioRef.current = audio;
         
@@ -67,6 +85,7 @@ export const useTextToSpeech = (options: UseTTSOptions = {}) => {
   }, []);
 
   const stop = useCallback(() => {
+    isCancelledRef.current = true;
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
@@ -81,6 +100,7 @@ export const useTextToSpeech = (options: UseTTSOptions = {}) => {
   const speak = useCallback(async (text: string, lang: string = 'en-US') => {
     if (!text?.trim()) return;
     
+    isCancelledRef.current = false;
     setIsSpeaking(true);
     try {
       await speakWithElevenLabs(text, lang);
@@ -105,6 +125,8 @@ export const useTextToSpeech = (options: UseTTSOptions = {}) => {
     remedy_traditional_en?: string | null;
     plant_type?: string;
   }) => {
+    isCancelledRef.current = false;
+    
     let tamilText = '';
     let englishText = '';
 
@@ -124,16 +146,18 @@ export const useTextToSpeech = (options: UseTTSOptions = {}) => {
     setIsSpeaking(true);
     
     try {
-      // Speak Tamil first
-      if (tamilText.trim()) {
+      // Speak Tamil first - wait for it to complete
+      if (tamilText.trim() && !isCancelledRef.current) {
         await speakWithElevenLabs(tamilText, 'ta-IN');
       }
       
       // Small pause between languages
-      await new Promise(resolve => setTimeout(resolve, 500));
+      if (!isCancelledRef.current) {
+        await delay(800);
+      }
       
-      // Then speak English
-      if (englishText.trim()) {
+      // Then speak English - sequential, not parallel
+      if (englishText.trim() && !isCancelledRef.current) {
         await speakWithElevenLabs(englishText, 'en-US');
       }
     } catch (error) {
