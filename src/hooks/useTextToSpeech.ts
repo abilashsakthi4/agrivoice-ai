@@ -125,41 +125,37 @@ export const useTextToSpeech = (options: UseTTSOptions = {}) => {
     remedy_traditional_ta?: string | null;
     remedy_traditional_en?: string | null;
     plant_type?: string;
-  }) => {
+  }, language: 'ta' | 'en' = 'ta') => {
     isCancelledRef.current = false;
     
-    let tamilText = '';
-    let englishText = '';
+    let textToSpeak = '';
+    const lang = language === 'ta' ? 'ta-IN' : 'en-US';
 
-    if (result.is_healthy) {
-      tamilText = `நல்ல செய்தி! உங்கள் ${result.plant_type || 'செடி'} ஆரோக்கியமாக உள்ளது.`;
-      englishText = `Good news! Your ${result.plant_type || 'plant'} is healthy.`;
+    if (language === 'ta') {
+      // Tamil speech
+      if (result.is_healthy) {
+        textToSpeak = `நல்ல செய்தி! உங்கள் ${result.plant_type || 'செடி'} ஆரோக்கியமாக உள்ளது.`;
+      } else {
+        textToSpeak = `${result.disease_name_ta || 'நோய்'} கண்டறியப்பட்டது. `;
+        if (result.cause_ta) textToSpeak += result.cause_ta + '. ';
+        if (result.remedy_organic_ta) textToSpeak += result.remedy_organic_ta + '. ';
+      }
     } else {
-      tamilText = `${result.disease_name_ta || 'நோய்'} கண்டறியப்பட்டது. `;
-      if (result.cause_ta) tamilText += result.cause_ta + '. ';
-      if (result.remedy_organic_ta) tamilText += result.remedy_organic_ta + '. ';
-
-      englishText = `${result.disease_name_en || 'Disease'} detected. `;
-      if (result.cause_en) englishText += result.cause_en + '. ';
-      if (result.remedy_organic_en) englishText += result.remedy_organic_en + '. ';
+      // English speech
+      if (result.is_healthy) {
+        textToSpeak = `Good news! Your ${result.plant_type || 'plant'} is healthy.`;
+      } else {
+        textToSpeak = `${result.disease_name_en || 'Disease'} detected. `;
+        if (result.cause_en) textToSpeak += result.cause_en + '. ';
+        if (result.remedy_organic_en) textToSpeak += result.remedy_organic_en + '. ';
+      }
     }
 
     setIsSpeaking(true);
     
     try {
-      // Speak Tamil first - wait for it to complete
-      if (tamilText.trim() && !isCancelledRef.current) {
-        await speakWithElevenLabs(tamilText, 'ta-IN');
-      }
-      
-      // Small pause between languages
-      if (!isCancelledRef.current) {
-        await delay(800);
-      }
-      
-      // Then speak English - sequential, not parallel
-      if (englishText.trim() && !isCancelledRef.current) {
-        await speakWithElevenLabs(englishText, 'en-US');
+      if (textToSpeak.trim() && !isCancelledRef.current) {
+        await speakWithElevenLabs(textToSpeak, lang);
       }
     } catch (error) {
       console.error('Speech error:', error);
