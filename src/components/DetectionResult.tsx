@@ -32,7 +32,7 @@ const DetectionResult: React.FC<DetectionResultProps> = ({ result, onNewScan }) 
     if (isSpeaking) {
       stop();
     } else {
-      speakDetectionResult(result);
+      speakDetectionResult(result, language);
     }
   };
 
