@@ -84,7 +84,8 @@ const Home: React.FC = () => {
             <span className="font-tamil font-bold text-lg">{t('appName')}</span>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <DarkModeToggle />
             <LanguageToggle />
             {user && !isGuest && (
               <>
