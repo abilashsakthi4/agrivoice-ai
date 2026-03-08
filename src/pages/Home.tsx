@@ -6,6 +6,9 @@ import { useDetection } from '@/hooks/useDetection';
 import ImageUploader from '@/components/ImageUploader';
 import DetectionResult from '@/components/DetectionResult';
 import LanguageToggle from '@/components/LanguageToggle';
+import WeatherWidget from '@/components/WeatherWidget';
+import FarmingTips from '@/components/FarmingTips';
+import CropCalendar from '@/components/CropCalendar';
 import { Button } from '@/components/ui/button';
 import { Leaf, History, User, LogOut, Shield, ScanLine, Sprout, ShieldCheck } from 'lucide-react';
 import heroFarmer from '@/assets/hero-farmer.jpg';
@@ -113,6 +116,9 @@ const Home: React.FC = () => {
 
       {/* Main content */}
       <main className="container mx-auto px-4 py-6 space-y-8">
+        {/* Weather Widget */}
+        <WeatherWidget />
+
         {/* Feature Cards */}
         {!result && (
           <div className="grid grid-cols-3 gap-3">
@@ -150,6 +156,12 @@ const Home: React.FC = () => {
             <ImageUploader onImageSelect={handleImageSelect} isLoading={isAnalyzing} />
           </div>
         )}
+
+        {/* Crop Calendar */}
+        {!result && <CropCalendar />}
+
+        {/* Farming Tips */}
+        {!result && <FarmingTips />}
       </main>
     </div>
   );
