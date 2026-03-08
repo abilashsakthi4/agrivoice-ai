@@ -10,6 +10,7 @@ import LanguageToggle from '@/components/LanguageToggle';
 import WeatherWidget from '@/components/WeatherWidget';
 import FarmingTips from '@/components/FarmingTips';
 import CropCalendar from '@/components/CropCalendar';
+import QuickTipsCarousel from '@/components/QuickTipsCarousel';
 
 import NotificationSettings from '@/components/NotificationSettings';
 import BottomNav from '@/components/BottomNav';
@@ -218,6 +219,19 @@ const Home: React.FC = () => {
             variants={fadeUp}
           >
             <CropCalendar />
+          </motion.div>
+        )}
+
+        {/* Quick Tips */}
+        {!result && (
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+            custom={0}
+            variants={fadeUp}
+          >
+            <QuickTipsCarousel />
           </motion.div>
         )}
 
