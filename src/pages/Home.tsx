@@ -10,7 +10,7 @@ import LanguageToggle from '@/components/LanguageToggle';
 import WeatherWidget from '@/components/WeatherWidget';
 import FarmingTips from '@/components/FarmingTips';
 import CropCalendar from '@/components/CropCalendar';
-import KnowledgeBase from '@/components/KnowledgeBase';
+
 import NotificationSettings from '@/components/NotificationSettings';
 import BottomNav from '@/components/BottomNav';
 import DarkModeToggle from '@/components/DarkModeToggle';
@@ -221,18 +221,6 @@ const Home: React.FC = () => {
           </motion.div>
         )}
 
-        {/* Knowledge Base */}
-        {!result && (
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-40px' }}
-            custom={0}
-            variants={fadeUp}
-          >
-            <KnowledgeBase />
-          </motion.div>
-        )}
 
         {/* Farming Tips */}
         {!result && (
