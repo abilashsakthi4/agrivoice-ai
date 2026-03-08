@@ -34,9 +34,9 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
           {/* Background Image */}
           <motion.div
             className="absolute inset-0"
-            initial={{ scale: 1.3 }}
+            initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
-            transition={{ duration: 3, ease: [0.25, 0.1, 0.25, 1] }}
+            transition={{ duration: 1.8, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <img
               src={heroFarmer}
