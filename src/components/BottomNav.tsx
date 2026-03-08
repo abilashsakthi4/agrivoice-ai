@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Home, ScanLine, History, User } from 'lucide-react';
@@ -10,7 +10,7 @@ const navItems = [
   { path: '/profile', icon: User, labelTa: 'சுயவிவரம்', labelEn: 'Profile' },
 ];
 
-const BottomNav: React.FC = () => {
+const BottomNav: React.FC = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
   const { language } = useLanguage();
@@ -55,6 +55,7 @@ const BottomNav: React.FC = () => {
       </div>
     </nav>
   );
-};
+});
+BottomNav.displayName = 'BottomNav';
 
 export default BottomNav;
