@@ -27,6 +27,7 @@ interface DetectionResultProps {
 
 const DetectionResult: React.FC<DetectionResultProps> = ({ result, onNewScan }) => {
   const { t, getText, language } = useLanguage();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { speakDetectionResult, isSpeaking, stop, isSupported } = useTextToSpeech();
 
   const handleSpeak = () => {
