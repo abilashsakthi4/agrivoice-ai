@@ -5,8 +5,9 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import LanguageToggle from '@/components/LanguageToggle';
 import SplashScreen from '@/components/SplashScreen';
-import { Leaf, LogIn, ArrowRight } from 'lucide-react';
+import { LogIn, ArrowRight } from 'lucide-react';
 import heroFarmer from '@/assets/hero-farmer.jpg';
+import appLogo from '@/assets/app-logo.png';
 
 const Index: React.FC = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -44,8 +45,8 @@ const Index: React.FC = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: 'spring', stiffness: 200, damping: 20 }}
         >
-          <div className="w-20 h-20 rounded-2xl bg-primary/90 flex items-center justify-center mb-5 mx-auto shadow-lg rotate-6">
-            <Leaf className="h-10 w-10 text-primary-foreground -rotate-6" />
+          <div className="w-24 h-24 rounded-2xl bg-card/90 flex items-center justify-center mb-5 mx-auto shadow-lg overflow-hidden">
+            <img src={appLogo} alt="Crop Doctor" className="w-20 h-20 object-contain" />
           </div>
           <h1 className="font-tamil text-3xl sm:text-4xl font-bold text-foreground mb-2">
             {t('appName')}
