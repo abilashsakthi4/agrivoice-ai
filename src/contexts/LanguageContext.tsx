@@ -94,6 +94,11 @@ export const translations: Translations = {
   
   // Offline
   offlineResults: { ta: 'ஆஃப்லைன் முடிவுகள்', en: 'Offline Results' },
+  
+  // Forum
+  forum: { ta: 'விவசாய சமூகம்', en: 'Farmer Community' },
+  newPost: { ta: 'புதிய பதிவு', en: 'New Post' },
+  replies: { ta: 'பதில்கள்', en: 'Replies' },
 };
 
 interface LanguageContextType {
