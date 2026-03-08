@@ -3,26 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDetection } from '@/hooks/useDetection';
-import { motion } from 'framer-motion';
-import ImageUploader from '@/components/ImageUploader';
-import DetectionResult from '@/components/DetectionResult';
-import LanguageToggle from '@/components/LanguageToggle';
-import WeatherWidget from '@/components/WeatherWidget';
-import FarmingTips from '@/components/FarmingTips';
-import CropCalendar from '@/components/CropCalendar';
-import BottomNav from '@/components/BottomNav';
-import { Button } from '@/components/ui/button';
-import { Leaf, History, User, LogOut, Shield, ScanLine, Sprout, ShieldCheck } from 'lucide-react';
-import heroFarmer from '@/assets/hero-farmer.jpg';
-import leafDisease from '@/assets/leaf-disease.jpg';
-import healthyLeaf from '@/assets/healthy-leaf.jpg';
+import { motion, type Easing } from 'framer-motion';
+
+const EASE: Easing = [0, 0, 0.2, 1];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.12, duration: 0.5, ease: 'easeOut' },
+    transition: { delay: i * 0.12, duration: 0.5, ease: EASE },
   }),
 };
 
@@ -31,7 +21,7 @@ const scaleIn = {
   visible: (i: number) => ({
     opacity: 1,
     scale: 1,
-    transition: { delay: 0.1 + i * 0.15, duration: 0.45, ease: 'easeOut' },
+    transition: { delay: 0.1 + i * 0.15, duration: 0.45, ease: EASE },
   }),
 };
 
