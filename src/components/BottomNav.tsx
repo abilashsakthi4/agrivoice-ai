@@ -6,7 +6,6 @@ import { Home, ScanLine, History, User } from 'lucide-react';
 const navItems = [
   { path: '/home', icon: Home, labelTa: 'முகப்பு', labelEn: 'Home' },
   { path: '/home', icon: ScanLine, labelTa: 'ஸ்கேன்', labelEn: 'Scan', hash: '#scan' },
-  { path: '/forum', icon: MessageSquare, labelTa: 'சமூகம்', labelEn: 'Forum' },
   { path: '/history', icon: History, labelTa: 'வரலாறு', labelEn: 'History' },
   { path: '/profile', icon: User, labelTa: 'சுயவிவரம்', labelEn: 'Profile' },
 ];
