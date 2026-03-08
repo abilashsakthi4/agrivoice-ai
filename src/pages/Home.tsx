@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'; // v2
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
