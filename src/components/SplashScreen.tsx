@@ -97,9 +97,9 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
             <motion.h1
               className="font-tamil text-4xl sm:text-5xl font-bold text-[hsl(var(--rice))] mb-3 text-center"
               style={{ textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.5 }}
+              transition={{ duration: 0.4, delay: 0.25 }}
             >
               {t('appName')}
             </motion.h1>
