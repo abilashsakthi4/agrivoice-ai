@@ -81,6 +81,19 @@ export const translations: Translations = {
   photoGuide2: { ta: 'முழு இலையும் தெரிய வேண்டும்', en: 'Entire leaf should be visible' },
   photoGuide3: { ta: 'தெளிவாக, மங்காமல் எடுக்கவும்', en: 'Take a clear, non-blurry photo' },
   photoGuide4: { ta: 'பாதிக்கப்பட்ட பகுதியை காட்டவும்', en: 'Show the affected area' },
+  
+  // Knowledge Base
+  knowledgeBase: { ta: 'பயிர் அறிவுத் தளம்', en: 'Crop Knowledge Base' },
+  searchCrop: { ta: 'பயிர் அல்லது நோயை தேடுங்கள்', en: 'Search crop or disease' },
+  
+  // Notifications
+  notifications: { ta: 'அறிவிப்புகள்', en: 'Notifications' },
+  
+  // Share
+  shareResult: { ta: 'முடிவைப் பகிர்', en: 'Share Result' },
+  
+  // Offline
+  offlineResults: { ta: 'ஆஃப்லைன் முடிவுகள்', en: 'Offline Results' },
 };
 
 interface LanguageContextType {
