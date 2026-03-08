@@ -80,7 +80,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
               className="relative mb-8"
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 18, delay: 0.1 }}
             >
               <motion.div
                 className="absolute inset-[-12px] rounded-full bg-[hsl(var(--harvest))]"
