@@ -32,7 +32,7 @@ const App = () => (
               <Route path="/history" element={<History />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/forum" element={<Forum />} />
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
