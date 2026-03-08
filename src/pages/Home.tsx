@@ -11,6 +11,7 @@ import FarmingTips from '@/components/FarmingTips';
 import CropCalendar from '@/components/CropCalendar';
 import { Button } from '@/components/ui/button';
 import { Leaf, History, User, LogOut, Shield, ScanLine, Sprout, ShieldCheck } from 'lucide-react';
+import BottomNav from '@/components/BottomNav';
 import heroFarmer from '@/assets/hero-farmer.jpg';
 import leafDisease from '@/assets/leaf-disease.jpg';
 import healthyLeaf from '@/assets/healthy-leaf.jpg';
@@ -58,7 +59,7 @@ const Home: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 sm:pb-0">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-card/95 backdrop-blur border-b border-border">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -149,12 +150,13 @@ const Home: React.FC = () => {
         {result ? (
           <DetectionResult result={result} onNewScan={clearResult} />
         ) : (
-          <div>
+          <div id="scan-section">
             <h2 className="font-tamil text-xl font-bold text-foreground mb-4 text-center">
               {t('scanPlant')}
             </h2>
             <ImageUploader onImageSelect={handleImageSelect} isLoading={isAnalyzing} />
-          </div>
+      <BottomNav />
+    </div>
         )}
 
         {/* Crop Calendar */}
