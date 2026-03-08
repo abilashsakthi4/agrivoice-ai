@@ -55,6 +55,9 @@ export const useDetection = () => {
         const detectionResult = cachedResult.detection_result as unknown as DetectionResult;
         setResult(detectionResult);
         
+        // Cache offline
+        saveOffline(detectionResult);
+
         // Save to history if logged in
         if (user && !isGuest) {
           await saveToHistory(imageBase64, imageHash, detectionResult);
