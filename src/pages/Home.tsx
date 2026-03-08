@@ -15,7 +15,7 @@ import NotificationSettings from '@/components/NotificationSettings';
 import BottomNav from '@/components/BottomNav';
 import DarkModeToggle from '@/components/DarkModeToggle';
 import { Button } from '@/components/ui/button';
-import { Leaf, History, User, LogOut, Shield, ScanLine, Sprout, ShieldCheck } from 'lucide-react';
+import { Leaf, History, User, LogOut, Shield, ScanLine, Sprout, ShieldCheck, BookOpen, Bell } from 'lucide-react';
 import heroFarmer from '@/assets/hero-farmer.jpg';
 import leafDisease from '@/assets/leaf-disease.jpg';
 import healthyLeaf from '@/assets/healthy-leaf.jpg';
