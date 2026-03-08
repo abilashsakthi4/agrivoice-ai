@@ -155,7 +155,8 @@ const Home: React.FC = () => {
               {t('scanPlant')}
             </h2>
             <ImageUploader onImageSelect={handleImageSelect} isLoading={isAnalyzing} />
-          </div>
+      <BottomNav />
+    </div>
         )}
 
         {/* Crop Calendar */}
