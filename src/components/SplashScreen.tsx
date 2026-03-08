@@ -13,9 +13,9 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const [phase, setPhase] = useState<'enter' | 'hold' | 'exit'>('enter');
 
   useEffect(() => {
-    const holdTimer = setTimeout(() => setPhase('hold'), 600);
-    const exitTimer = setTimeout(() => setPhase('exit'), 2800);
-    const completeTimer = setTimeout(onComplete, 3400);
+    const holdTimer = setTimeout(() => setPhase('hold'), 300);
+    const exitTimer = setTimeout(() => setPhase('exit'), 1400);
+    const completeTimer = setTimeout(onComplete, 1800);
     return () => {
       clearTimeout(holdTimer);
       clearTimeout(exitTimer);
