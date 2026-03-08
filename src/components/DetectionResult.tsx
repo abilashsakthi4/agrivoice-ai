@@ -174,6 +174,14 @@ const DetectionResult: React.FC<DetectionResultProps> = ({ result, onNewScan }) 
         </div>
       )}
 
+      {/* Share buttons */}
+      <div className="mt-4">
+        <p className="font-tamil text-sm font-semibold text-foreground mb-2">
+          {language === 'ta' ? '📤 முடிவைப் பகிர்' : '📤 Share Result'}
+        </p>
+        <ShareResult result={result} />
+      </div>
+
       {/* New scan button */}
       <Button
         onClick={onNewScan}
