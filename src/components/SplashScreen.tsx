@@ -13,9 +13,9 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const [phase, setPhase] = useState<'enter' | 'hold' | 'exit'>('enter');
 
   useEffect(() => {
-    const holdTimer = setTimeout(() => setPhase('hold'), 600);
-    const exitTimer = setTimeout(() => setPhase('exit'), 2800);
-    const completeTimer = setTimeout(onComplete, 3400);
+    const holdTimer = setTimeout(() => setPhase('hold'), 300);
+    const exitTimer = setTimeout(() => setPhase('exit'), 1400);
+    const completeTimer = setTimeout(onComplete, 1800);
     return () => {
       clearTimeout(holdTimer);
       clearTimeout(exitTimer);
@@ -34,9 +34,9 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
           {/* Background Image */}
           <motion.div
             className="absolute inset-0"
-            initial={{ scale: 1.3 }}
+            initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
-            transition={{ duration: 3, ease: [0.25, 0.1, 0.25, 1] }}
+            transition={{ duration: 1.8, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <img
               src={heroFarmer}
@@ -80,7 +80,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
               className="relative mb-8"
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 18, delay: 0.1 }}
             >
               <motion.div
                 className="absolute inset-[-12px] rounded-full bg-[hsl(var(--harvest))]"
@@ -97,9 +97,9 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
             <motion.h1
               className="font-tamil text-4xl sm:text-5xl font-bold text-[hsl(var(--rice))] mb-3 text-center"
               style={{ textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.5 }}
+              transition={{ duration: 0.4, delay: 0.25 }}
             >
               {t('appName')}
             </motion.h1>
@@ -109,16 +109,16 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
               className="w-16 h-1 rounded-full bg-[hsl(var(--harvest))] mb-4"
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
+              transition={{ duration: 0.3, delay: 0.4 }}
             />
 
             {/* Tagline */}
             <motion.p
               className="font-tamil text-xl text-[hsl(var(--rice)/0.9)] mb-2 text-center"
               style={{ textShadow: '0 2px 10px rgba(0,0,0,0.4)' }}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.9 }}
+              transition={{ duration: 0.4, delay: 0.45 }}
             >
               {t('splashTagline')}
             </motion.p>
@@ -127,7 +127,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
               className="font-tamil text-sm text-[hsl(var(--rice)/0.65)] text-center max-w-xs"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 1.2 }}
+              transition={{ duration: 0.3, delay: 0.55 }}
             >
               {t('splashSubtitle')}
             </motion.p>
@@ -137,7 +137,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
               className="flex gap-2 mt-10"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1.5 }}
+              transition={{ delay: 0.7 }}
             >
               {[0, 1, 2].map((i) => (
                 <motion.div
