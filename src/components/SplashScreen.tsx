@@ -127,7 +127,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
               className="font-tamil text-sm text-[hsl(var(--rice)/0.65)] text-center max-w-xs"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 1.2 }}
+              transition={{ duration: 0.3, delay: 0.55 }}
             >
               {t('splashSubtitle')}
             </motion.p>
