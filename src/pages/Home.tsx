@@ -3,18 +3,39 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDetection } from '@/hooks/useDetection';
+import { motion, type Easing } from 'framer-motion';
 import ImageUploader from '@/components/ImageUploader';
 import DetectionResult from '@/components/DetectionResult';
 import LanguageToggle from '@/components/LanguageToggle';
 import WeatherWidget from '@/components/WeatherWidget';
 import FarmingTips from '@/components/FarmingTips';
 import CropCalendar from '@/components/CropCalendar';
+import BottomNav from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Leaf, History, User, LogOut, Shield, ScanLine, Sprout, ShieldCheck } from 'lucide-react';
-import BottomNav from '@/components/BottomNav';
 import heroFarmer from '@/assets/hero-farmer.jpg';
 import leafDisease from '@/assets/leaf-disease.jpg';
 import healthyLeaf from '@/assets/healthy-leaf.jpg';
+
+const EASE: Easing = [0, 0, 0.2, 1];
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.12, duration: 0.5, ease: EASE },
+  }),
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: (i: number) => ({
+    opacity: 1,
+    scale: 1,
+    transition: { delay: 0.1 + i * 0.15, duration: 0.45, ease: EASE },
+  }),
+};
 
 const Home: React.FC = () => {
   const { t } = useLanguage();
@@ -36,24 +57,18 @@ const Home: React.FC = () => {
       icon: ScanLine,
       titleTa: 'நோயைக் கண்டறி',
       titleEn: 'Detect Disease',
-      descTa: 'இலையின் புகைப்படத்தை எடுத்து நோயை உடனடியாக கண்டறியுங்கள்',
-      descEn: 'Take a photo of the leaf and instantly detect the disease',
       image: leafDisease,
     },
     {
       icon: Sprout,
       titleTa: 'இயற்கை தீர்வு',
       titleEn: 'Organic Remedy',
-      descTa: 'பாரம்பரிய மற்றும் இயற்கை வழிகளில் தீர்வு பெறுங்கள்',
-      descEn: 'Get solutions through traditional and organic methods',
       image: healthyLeaf,
     },
     {
       icon: ShieldCheck,
       titleTa: 'பயிர் பாதுகாப்பு',
       titleEn: 'Crop Protection',
-      descTa: 'உங்கள் பயிர்களை நோய்களிலிருந்து பாதுகாக்கவும்',
-      descEn: 'Protect your crops from diseases',
       image: heroFarmer,
     },
   ];
@@ -70,7 +85,6 @@ const Home: React.FC = () => {
           
           <div className="flex items-center gap-2">
             <LanguageToggle />
-            
             {user && !isGuest && (
               <>
                 <Button variant="ghost" size="icon" onClick={() => navigate('/history')}>
@@ -86,7 +100,6 @@ const Home: React.FC = () => {
                 )}
               </>
             )}
-            
             {(user || isGuest) && (
               <Button variant="ghost" size="icon" onClick={handleLogout}>
                 <LogOut className="h-5 w-5" />
@@ -98,40 +111,60 @@ const Home: React.FC = () => {
 
       {/* Hero Section */}
       <section className="relative h-64 sm:h-80 overflow-hidden">
-        <img
+        <motion.img
           src={heroFarmer}
           alt="Tamil Nadu farmer in rice paddy field"
           className="w-full h-full object-cover"
           loading="eager"
+          initial={{ scale: 1.15, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-        <div className="absolute bottom-6 left-0 right-0 text-center px-4">
+        <motion.div
+          className="absolute bottom-6 left-0 right-0 text-center px-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.6, ease: 'easeOut' }}
+        >
           <h1 className="font-tamil text-2xl sm:text-3xl font-bold text-foreground drop-shadow-lg mb-1">
             {t('appName')}
           </h1>
           <p className="font-tamil text-sm sm:text-base text-muted-foreground">
             {isGuest ? 'விருந்தினராக தொடர்கிறீர்கள்' : `${t('welcome')}!`}
           </p>
-        </div>
+        </motion.div>
       </section>
 
       {/* Main content */}
       <main className="container mx-auto px-4 py-6 space-y-8">
         {/* Weather Widget */}
-        <WeatherWidget />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        >
+          <WeatherWidget />
+        </motion.div>
 
         {/* Feature Cards */}
         {!result && (
           <div className="grid grid-cols-3 gap-3">
             {features.map((f, i) => (
-              <div
+              <motion.div
                 key={i}
-                className="relative rounded-xl overflow-hidden aspect-square group"
+                custom={i}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-40px' }}
+                variants={scaleIn}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="relative rounded-xl overflow-hidden aspect-square group cursor-pointer"
               >
                 <img
                   src={f.image}
                   alt={f.titleEn}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 to-transparent" />
@@ -141,30 +174,64 @@ const Home: React.FC = () => {
                     {t('appName').includes('Crop') ? f.titleEn : f.titleTa}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
 
         {/* Detection flow */}
         {result ? (
-          <DetectionResult result={result} onNewScan={clearResult} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+          >
+            <DetectionResult result={result} onNewScan={clearResult} />
+          </motion.div>
         ) : (
-          <div id="scan-section">
+          <motion.div
+            id="scan-section"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+            custom={0}
+            variants={fadeUp}
+          >
             <h2 className="font-tamil text-xl font-bold text-foreground mb-4 text-center">
               {t('scanPlant')}
             </h2>
             <ImageUploader onImageSelect={handleImageSelect} isLoading={isAnalyzing} />
-      <BottomNav />
-    </div>
+          </motion.div>
         )}
 
         {/* Crop Calendar */}
-        {!result && <CropCalendar />}
+        {!result && (
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+            custom={0}
+            variants={fadeUp}
+          >
+            <CropCalendar />
+          </motion.div>
+        )}
 
         {/* Farming Tips */}
-        {!result && <FarmingTips />}
+        {!result && (
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+            custom={0}
+            variants={fadeUp}
+          >
+            <FarmingTips />
+          </motion.div>
+        )}
       </main>
+
+      <BottomNav />
     </div>
   );
 };
