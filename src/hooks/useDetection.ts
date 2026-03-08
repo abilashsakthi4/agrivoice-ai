@@ -80,6 +80,9 @@ export const useDetection = () => {
       const detectionResult = data as DetectionResult;
       setResult(detectionResult);
 
+      // Cache offline
+      saveOffline(detectionResult);
+
       // Cache the result
       await supabase
         .from('image_cache')
