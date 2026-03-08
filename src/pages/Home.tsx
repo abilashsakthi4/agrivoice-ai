@@ -11,6 +11,7 @@ import FarmingTips from '@/components/FarmingTips';
 import CropCalendar from '@/components/CropCalendar';
 import { Button } from '@/components/ui/button';
 import { Leaf, History, User, LogOut, Shield, ScanLine, Sprout, ShieldCheck } from 'lucide-react';
+import BottomNav from '@/components/BottomNav';
 import heroFarmer from '@/assets/hero-farmer.jpg';
 import leafDisease from '@/assets/leaf-disease.jpg';
 import healthyLeaf from '@/assets/healthy-leaf.jpg';
