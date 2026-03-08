@@ -137,7 +137,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
               className="flex gap-2 mt-10"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1.5 }}
+              transition={{ delay: 0.7 }}
             >
               {[0, 1, 2].map((i) => (
                 <motion.div
