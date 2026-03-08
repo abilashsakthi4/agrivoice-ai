@@ -161,6 +161,16 @@ export const useDetection = () => {
     }
   };
 
+  const saveOffline = (result: DetectionResult) => {
+    try {
+      const key = 'offline_detections';
+      const stored = JSON.parse(localStorage.getItem(key) || '[]');
+      const entry = { id: crypto.randomUUID(), timestamp: Date.now(), result };
+      const updated = [entry, ...stored].slice(0, 20);
+      localStorage.setItem(key, JSON.stringify(updated));
+    } catch {}
+  };
+
   const clearResult = () => {
     setResult(null);
     setError(null);
