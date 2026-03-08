@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Leaf, Sun, Droplets } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Leaf } from 'lucide-react';
+import heroFarmer from '@/assets/hero-farmer.jpg';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -8,89 +10,156 @@ interface SplashScreenProps {
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const { t } = useLanguage();
-  const [isVisible, setIsVisible] = useState(true);
+  const [phase, setPhase] = useState<'enter' | 'hold' | 'exit'>('enter');
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-      setTimeout(onComplete, 500);
-    }, 3000);
-
-    return () => clearTimeout(timer);
+    const holdTimer = setTimeout(() => setPhase('hold'), 600);
+    const exitTimer = setTimeout(() => setPhase('exit'), 2800);
+    const completeTimer = setTimeout(onComplete, 3400);
+    return () => {
+      clearTimeout(holdTimer);
+      clearTimeout(exitTimer);
+      clearTimeout(completeTimer);
+    };
   }, [onComplete]);
 
   return (
-    <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center transition-opacity duration-500 ${
-        isVisible ? 'opacity-100' : 'opacity-0'
-      }`}
-      style={{
-        background: 'linear-gradient(180deg, hsl(142 45% 28%) 0%, hsl(142 50% 20%) 50%, hsl(25 35% 20%) 100%)',
-      }}
-    >
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Floating leaves */}
-        <div className="absolute top-20 left-10 animate-float opacity-20">
-          <Leaf className="h-16 w-16 text-leaf-light" />
-        </div>
-        <div className="absolute top-40 right-20 animate-float opacity-20" style={{ animationDelay: '1s' }}>
-          <Leaf className="h-12 w-12 text-leaf-light" />
-        </div>
-        <div className="absolute bottom-40 left-20 animate-float opacity-20" style={{ animationDelay: '2s' }}>
-          <Leaf className="h-20 w-20 text-leaf-light" />
-        </div>
-        
-        {/* Sun rays */}
-        <div className="absolute top-0 right-0 opacity-10">
-          <Sun className="h-40 w-40 text-harvest animate-spin" style={{ animationDuration: '20s' }} />
-        </div>
-        
-        {/* Water drops */}
-        <div className="absolute bottom-20 right-10 animate-float opacity-20" style={{ animationDelay: '0.5s' }}>
-          <Droplets className="h-10 w-10 text-water" />
-        </div>
-      </div>
+    <AnimatePresence>
+      {phase !== 'exit' ? (
+        <motion.div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          {/* Background Image */}
+          <motion.div
+            className="absolute inset-0"
+            initial={{ scale: 1.3 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 3, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            <img
+              src={heroFarmer}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-[hsl(142_45%_15%/0.85)] via-[hsl(142_40%_12%/0.75)] to-[hsl(25_35%_10%/0.9)]" />
+          </motion.div>
 
-      {/* Main content */}
-      <div className="relative z-10 text-center px-6">
-        {/* Logo/Icon */}
-        <div className="mb-8 animate-scale-in">
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-harvest/30 rounded-full blur-2xl animate-pulse" />
-            <div className="relative bg-rice/90 rounded-full p-6 shadow-2xl">
-              <Leaf className="h-20 w-20 text-primary animate-sway" />
-            </div>
+          {/* Floating Leaf Particles */}
+          {[...Array(6)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-[hsl(var(--leaf-light))] opacity-15"
+              initial={{
+                x: `${15 + i * 15}vw`,
+                y: '-10vh',
+                rotate: 0,
+                scale: 0.6 + Math.random() * 0.8,
+              }}
+              animate={{
+                y: '110vh',
+                rotate: 360,
+                x: `${15 + i * 15 + (Math.random() - 0.5) * 20}vw`,
+              }}
+              transition={{
+                duration: 4 + Math.random() * 3,
+                delay: i * 0.4,
+                ease: 'linear',
+                repeat: Infinity,
+              }}
+            >
+              <Leaf className="h-8 w-8" />
+            </motion.div>
+          ))}
+
+          {/* Main Content */}
+          <div className="relative z-10 flex flex-col items-center px-6">
+            {/* Logo Mark */}
+            <motion.div
+              className="relative mb-8"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
+            >
+              <motion.div
+                className="absolute inset-[-12px] rounded-full bg-[hsl(var(--harvest))]"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 0.25, scale: 1.3 }}
+                transition={{ duration: 1.5, delay: 0.5, repeat: Infinity, repeatType: 'reverse' }}
+              />
+              <div className="relative w-24 h-24 rounded-full bg-[hsl(var(--rice))] shadow-2xl flex items-center justify-center border-4 border-[hsl(var(--harvest)/0.4)]">
+                <Leaf className="h-12 w-12 text-primary" />
+              </div>
+            </motion.div>
+
+            {/* Title */}
+            <motion.h1
+              className="font-tamil text-4xl sm:text-5xl font-bold text-[hsl(var(--rice))] mb-3 text-center"
+              style={{ textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.5 }}
+            >
+              {t('appName')}
+            </motion.h1>
+
+            {/* Decorative Line */}
+            <motion.div
+              className="w-16 h-1 rounded-full bg-[hsl(var(--harvest))] mb-4"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+            />
+
+            {/* Tagline */}
+            <motion.p
+              className="font-tamil text-xl text-[hsl(var(--rice)/0.9)] mb-2 text-center"
+              style={{ textShadow: '0 2px 10px rgba(0,0,0,0.4)' }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.9 }}
+            >
+              {t('splashTagline')}
+            </motion.p>
+
+            <motion.p
+              className="font-tamil text-sm text-[hsl(var(--rice)/0.65)] text-center max-w-xs"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 1.2 }}
+            >
+              {t('splashSubtitle')}
+            </motion.p>
+
+            {/* Loading Dots */}
+            <motion.div
+              className="flex gap-2 mt-10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5 }}
+            >
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--harvest))]"
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{
+                    duration: 0.6,
+                    repeat: Infinity,
+                    delay: i * 0.15,
+                    ease: 'easeInOut',
+                  }}
+                />
+              ))}
+            </motion.div>
           </div>
-        </div>
 
-        {/* App name */}
-        <h1 className="font-tamil text-4xl font-bold text-rice mb-3 animate-fade-in-up text-shadow-lg">
-          {t('appName')}
-        </h1>
-
-        {/* Tagline */}
-        <p className="font-tamil text-xl text-rice/90 mb-2 animate-fade-in-up text-shadow" style={{ animationDelay: '0.3s' }}>
-          {t('splashTagline')}
-        </p>
-        
-        <p className="font-tamil text-base text-rice/70 animate-fade-in-up text-shadow" style={{ animationDelay: '0.5s' }}>
-          {t('splashSubtitle')}
-        </p>
-
-        {/* Loading indicator */}
-        <div className="mt-12 animate-fade-in" style={{ animationDelay: '0.8s' }}>
-          <div className="flex justify-center space-x-2">
-            <div className="w-3 h-3 bg-harvest rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-            <div className="w-3 h-3 bg-harvest rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-            <div className="w-3 h-3 bg-harvest rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom decorative element */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-soil/50 to-transparent" />
-    </div>
+          {/* Bottom Gradient */}
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[hsl(25_35%_8%/0.6)] to-transparent" />
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
   );
 };
 
