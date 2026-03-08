@@ -10,7 +10,7 @@ const navItems = [
   { path: '/profile', icon: User, labelTa: 'சுயவிவரம்', labelEn: 'Profile' },
 ];
 
-const BottomNav: React.FC = () => {
+const BottomNav: React.FC = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
   const { language } = useLanguage();
