@@ -10,6 +10,7 @@ import LanguageToggle from '@/components/LanguageToggle';
 import WeatherWidget from '@/components/WeatherWidget';
 import FarmingTips from '@/components/FarmingTips';
 import CropCalendar from '@/components/CropCalendar';
+import QuickTipsCarousel from '@/components/QuickTipsCarousel';
 
 import NotificationSettings from '@/components/NotificationSettings';
 import BottomNav from '@/components/BottomNav';
