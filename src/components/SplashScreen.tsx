@@ -109,7 +109,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
               className="w-16 h-1 rounded-full bg-[hsl(var(--harvest))] mb-4"
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
+              transition={{ duration: 0.3, delay: 0.4 }}
             />
 
             {/* Tagline */}
