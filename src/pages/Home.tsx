@@ -222,6 +222,19 @@ const Home: React.FC = () => {
           </motion.div>
         )}
 
+        {/* Quick Tips */}
+        {!result && (
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+            custom={0}
+            variants={fadeUp}
+          >
+            <QuickTipsCarousel />
+          </motion.div>
+        )}
+
 
         {/* Farming Tips */}
         {!result && (
