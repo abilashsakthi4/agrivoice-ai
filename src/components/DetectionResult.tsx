@@ -5,6 +5,7 @@ import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Leaf, AlertTriangle, Volume2, VolumeX, Sparkles, FlaskConical, Home } from 'lucide-react';
+import ShareResult from '@/components/ShareResult';
 
 interface DetectionResultProps {
   result: {
