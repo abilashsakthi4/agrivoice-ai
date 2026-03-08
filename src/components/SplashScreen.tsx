@@ -88,8 +88,8 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
                 animate={{ opacity: 0.25, scale: 1.3 }}
                 transition={{ duration: 1.5, delay: 0.5, repeat: Infinity, repeatType: 'reverse' }}
               />
-              <div className="relative w-24 h-24 rounded-full bg-[hsl(var(--rice))] shadow-2xl flex items-center justify-center border-4 border-[hsl(var(--harvest)/0.4)]">
-                <Leaf className="h-12 w-12 text-primary" />
+              <div className="relative w-28 h-28 rounded-3xl bg-[hsl(var(--rice))] shadow-2xl flex items-center justify-center border-4 border-[hsl(var(--harvest)/0.4)] overflow-hidden">
+                <img src={appLogo} alt="Crop Doctor" className="w-24 h-24 object-contain" />
               </div>
             </motion.div>
 
