@@ -10,10 +10,12 @@ import LanguageToggle from '@/components/LanguageToggle';
 import WeatherWidget from '@/components/WeatherWidget';
 import FarmingTips from '@/components/FarmingTips';
 import CropCalendar from '@/components/CropCalendar';
+import KnowledgeBase from '@/components/KnowledgeBase';
+import NotificationSettings from '@/components/NotificationSettings';
 import BottomNav from '@/components/BottomNav';
 import DarkModeToggle from '@/components/DarkModeToggle';
 import { Button } from '@/components/ui/button';
-import { Leaf, History, User, LogOut, Shield, ScanLine, Sprout, ShieldCheck } from 'lucide-react';
+import { Leaf, History, User, LogOut, Shield, ScanLine, Sprout, ShieldCheck, BookOpen, Bell } from 'lucide-react';
 import heroFarmer from '@/assets/hero-farmer.jpg';
 import leafDisease from '@/assets/leaf-disease.jpg';
 import healthyLeaf from '@/assets/healthy-leaf.jpg';
@@ -219,6 +221,19 @@ const Home: React.FC = () => {
           </motion.div>
         )}
 
+        {/* Knowledge Base */}
+        {!result && (
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+            custom={0}
+            variants={fadeUp}
+          >
+            <KnowledgeBase />
+          </motion.div>
+        )}
+
         {/* Farming Tips */}
         {!result && (
           <motion.div
@@ -229,6 +244,19 @@ const Home: React.FC = () => {
             variants={fadeUp}
           >
             <FarmingTips />
+          </motion.div>
+        )}
+
+        {/* Notification Settings */}
+        {!result && (
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+            custom={0}
+            variants={fadeUp}
+          >
+            <NotificationSettings />
           </motion.div>
         )}
       </main>

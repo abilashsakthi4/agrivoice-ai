@@ -5,6 +5,7 @@ import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Leaf, AlertTriangle, Volume2, VolumeX, Sparkles, FlaskConical, Home } from 'lucide-react';
+import ShareResult from '@/components/ShareResult';
 
 interface DetectionResultProps {
   result: {
@@ -26,6 +27,7 @@ interface DetectionResultProps {
 
 const DetectionResult: React.FC<DetectionResultProps> = ({ result, onNewScan }) => {
   const { t, getText, language } = useLanguage();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { speakDetectionResult, isSpeaking, stop, isSupported } = useTextToSpeech();
 
   const handleSpeak = () => {
@@ -172,6 +174,14 @@ const DetectionResult: React.FC<DetectionResultProps> = ({ result, onNewScan }) 
           )}
         </div>
       )}
+
+      {/* Share buttons */}
+      <div className="mt-4">
+        <p className="font-tamil text-sm font-semibold text-foreground mb-2">
+          {language === 'ta' ? '📤 முடிவைப் பகிர்' : '📤 Share Result'}
+        </p>
+        <ShareResult result={result} />
+      </div>
 
       {/* New scan button */}
       <Button
