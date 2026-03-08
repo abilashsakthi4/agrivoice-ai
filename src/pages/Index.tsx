@@ -5,8 +5,9 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import LanguageToggle from '@/components/LanguageToggle';
 import SplashScreen from '@/components/SplashScreen';
-import { Leaf, LogIn, ArrowRight } from 'lucide-react';
+import { LogIn, ArrowRight } from 'lucide-react';
 import heroFarmer from '@/assets/hero-farmer.jpg';
+import appLogo from '@/assets/app-logo.png';
 
 const Index: React.FC = () => {
   const [showSplash, setShowSplash] = useState(true);

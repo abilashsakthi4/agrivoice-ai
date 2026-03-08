@@ -3,7 +3,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Leaf } from 'lucide-react';
 import heroFarmer from '@/assets/hero-farmer.jpg';
-
+import appLogo from '@/assets/app-logo.png';
 interface SplashScreenProps {
   onComplete: () => void;
 }
