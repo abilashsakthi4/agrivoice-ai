@@ -4,6 +4,18 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDetection } from '@/hooks/useDetection';
 import { motion, type Easing } from 'framer-motion';
+import ImageUploader from '@/components/ImageUploader';
+import DetectionResult from '@/components/DetectionResult';
+import LanguageToggle from '@/components/LanguageToggle';
+import WeatherWidget from '@/components/WeatherWidget';
+import FarmingTips from '@/components/FarmingTips';
+import CropCalendar from '@/components/CropCalendar';
+import BottomNav from '@/components/BottomNav';
+import { Button } from '@/components/ui/button';
+import { Leaf, History, User, LogOut, Shield, ScanLine, Sprout, ShieldCheck } from 'lucide-react';
+import heroFarmer from '@/assets/hero-farmer.jpg';
+import leafDisease from '@/assets/leaf-disease.jpg';
+import healthyLeaf from '@/assets/healthy-leaf.jpg';
 
 const EASE: Easing = [0, 0, 0.2, 1];
 
