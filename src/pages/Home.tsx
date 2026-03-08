@@ -150,7 +150,7 @@ const Home: React.FC = () => {
         {result ? (
           <DetectionResult result={result} onNewScan={clearResult} />
         ) : (
-          <div>
+          <div id="scan-section">
             <h2 className="font-tamil text-xl font-bold text-foreground mb-4 text-center">
               {t('scanPlant')}
             </h2>
