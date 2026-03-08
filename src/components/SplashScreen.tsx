@@ -116,9 +116,9 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
             <motion.p
               className="font-tamil text-xl text-[hsl(var(--rice)/0.9)] mb-2 text-center"
               style={{ textShadow: '0 2px 10px rgba(0,0,0,0.4)' }}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.9 }}
+              transition={{ duration: 0.4, delay: 0.45 }}
             >
               {t('splashTagline')}
             </motion.p>
