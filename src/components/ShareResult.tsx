@@ -20,7 +20,7 @@ const ShareResult: React.FC<ShareResultProps> = ({ result }) => {
   const [copied, setCopied] = useState(false);
 
   const getShareText = () => {
-    const appName = language === 'ta' ? 'பயிர் மருத்துவர்' : 'Crop Doctor';
+    const appName = language === 'ta' ? 'இலை மருத்துவர்' : 'Leaf Doctor';
     const status = result.is_healthy
       ? (language === 'ta' ? '✅ ஆரோக்கியமான செடி' : '✅ Healthy Plant')
       : (language === 'ta' ? '⚠️ நோய் கண்டறியப்பட்டது' : '⚠️ Disease Detected');

@@ -11,7 +11,7 @@ interface Translations {
 
 export const translations: Translations = {
   // Common
-  appName: { ta: 'பயிர் மருத்துவர்', en: 'Crop Doctor' },
+  appName: { ta: 'இலை மருத்துவர்', en: 'Leaf Doctor' },
   welcome: { ta: 'வரவேற்கிறோம்', en: 'Welcome' },
   loading: { ta: 'ஏற்றுகிறது...', en: 'Loading...' },
   error: { ta: 'பிழை ஏற்பட்டது', en: 'An error occurred' },
