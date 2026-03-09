@@ -36,7 +36,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
             transition={{ type: 'spring', stiffness: 400, damping: 22, duration: 0.3 }}
           >
             <div className="w-24 h-24 rounded-2xl bg-primary/10 shadow-lg flex items-center justify-center overflow-hidden">
-              <img src={appLogo} alt="Crop Doctor" className="w-20 h-20 object-contain" />
+              <img src={appLogo} alt="Leaf Doctor" className="w-20 h-20 object-contain" />
             </div>
           </motion.div>
 

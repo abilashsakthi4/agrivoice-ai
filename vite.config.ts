@@ -17,8 +17,8 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "robots.txt"],
       manifest: {
-        name: "பயிர் மருத்துவர் - Crop Doctor",
-        short_name: "Crop Doctor",
+        name: "இலை மருத்துவர் - Leaf Doctor",
+        short_name: "Leaf Doctor",
         description: "AI-powered plant disease detection for Tamil Nadu farmers",
         theme_color: "#2d6a3f",
         background_color: "#f5f0eb",

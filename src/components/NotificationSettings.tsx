@@ -45,7 +45,7 @@ const NotificationSettings: React.FC = () => {
   const scheduleNotification = () => {
     if (Notification.permission === 'granted') {
       setTimeout(() => {
-        new Notification(language === 'ta' ? '🌾 பயிர் மருத்துவர்' : '🌾 Crop Doctor', {
+        new Notification(language === 'ta' ? '🌾 இலை மருத்துவர்' : '🌾 Leaf Doctor', {
           body: language === 'ta' ? 'அறிவிப்புகள் வெற்றிகரமாக இயக்கப்பட்டன!' : 'Notifications enabled successfully!',
           icon: '/app-logo.png',
         });

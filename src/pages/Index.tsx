@@ -46,7 +46,7 @@ const Index: React.FC = () => {
           transition={{ type: 'spring', stiffness: 200, damping: 20 }}
         >
           <div className="w-24 h-24 rounded-2xl bg-card/90 flex items-center justify-center mb-5 mx-auto shadow-lg overflow-hidden">
-            <img src={appLogo} alt="Crop Doctor" className="w-20 h-20 object-contain" />
+            <img src={appLogo} alt="Leaf Doctor" className="w-20 h-20 object-contain" />
           </div>
           <h1 className="font-tamil text-3xl sm:text-4xl font-bold text-foreground mb-2">
             {t('appName')}
