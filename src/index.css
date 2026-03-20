@@ -270,3 +270,23 @@
     border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%;
   }
 }
+
+/* PWA safe area support for notched devices */
+html {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* Improve touch targets for mobile */
+@media (pointer: coarse) {
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Prevent pull-to-refresh in standalone mode */
+@media all and (display-mode: standalone) {
+  body {
+    overscroll-behavior-y: contain;
+  }
+}
