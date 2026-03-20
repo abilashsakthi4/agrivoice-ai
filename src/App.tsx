@@ -19,6 +19,7 @@ const Auth = React.lazy(() => import("./pages/Auth"));
 const History = React.lazy(() => import("./pages/History"));
 const Admin = React.lazy(() => import("./pages/Admin"));
 const Profile = React.lazy(() => import("./pages/Profile"));
+const Install = React.lazy(() => import("./pages/Install"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="/history" element={<History />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/install" element={<Install />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
