@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import React, { Suspense } from "react";
 import { Leaf } from "lucide-react";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 // Eagerly load the landing page for instant first paint
 import Index from "./pages/Index";
